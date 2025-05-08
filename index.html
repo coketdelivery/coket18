@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>코켓배송 업앤다운 대작전</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: url('1.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      overflow: hidden;
+    }
+    #game-container {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+    }
+    #game-header {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 400px;
+      background: none; /* 하얀 배경 제거 */
+      border-radius: 16px;
+      padding: 20px;
+    }
+    #status {
+      margin-bottom: 16px;
+      font-size: 1.2rem;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #status span {
+      background: none;
+      padding: 0;
+      font-size: clamp(0.8rem, 1.8vw, 1rem);
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+	  font-size: 1.2rem;
+      white-space: nowrap;
+    }
+    #arrow {
+      font-size: 3rem;
+      margin: 16px 0;
+      transition: transform 0.3s ease;
+    }
+    #arrow.up {
+      color: #4caf50;
+      transform: translateY(-10px);
+    }
+    #arrow.down {
+      color: #f44336;
+      transform: translateY(10px);
+    }
+    .input-group {
+      display: flex;
+      width: 100%;
+      gap: 8px;
+    }
+    input[type=number] {
+      flex: 1;
+      padding: 14px;
+      font-size: 1.1rem;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #000;
+    }
+    #submit-btn {
+      padding: 14px 20px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%);
+      color: #fff;
+      cursor: pointer;
+    }
+    #timer-chance {
+      margin-top: 16px;
+      font-size: 1.2rem;
+	  font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    #game-footer {
+      width: 100%;
+      max-width: 400px;
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 10px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: #fff;
+    }
+    #game-footer a {
+      color: #00eaff;
+    }
+    #start-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      z-index: 10;
+      color: #fff;
+    }
+    #start-screen h1 {
+      font-size: 2.5rem;
+    }
+    #start-screen p {
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+    #start-screen button {
+      margin-top: 24px;
+      padding: 14px 28px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 12px;
+      background: #ff4081;
+      color: #fff;
+      cursor: pointer;
+    }
+    #end-screen {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.6);
+      z-index: 10;
+    }
+    .end-modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 32px;
+      text-align: center;
+      color: #333;
+      max-width: 320px;
+      width: 90%;
+    }
+    .end-modal h1 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+    .end-modal p {
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+    .end-modal a {
+      color: #0077cc;
+    }
+    .end-modal button {
+      margin-top: 20px;
+      padding: 12px 28px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 24px;
+      background: #ff99cc;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- 시작 화면 -->
+  <div id="start-screen">
+    <h1>코켓 업앤다운 대작전 </h1>
+    <p>1에서 100 사이 숫자를 맞추면 단계 업!</p>
+    <p>기회 10번, 시간 60초 내에 맞춰보세요</p>
+	<p>새로운 단계에서는 새로운 기회가 부여됩니다.</p>
+	<p>유튜브 '결코_Gulko' 저작권 콘텐츠입니다.</p>
+    <p>© 2025 코켓게임즈. All rights reserved.<br>
+    <a href="https://www.youtube.com/@Gulko" target="_blank">https://www.youtube.com/@Gulko</a>
+     </p>
+    <button id="start-btn">게임 시작</button>
+  </div>
+
+  <!-- 종료 화면 -->
+  <div id="end-screen">
+    <div class="end-modal">
+      <h1>게임 오버! 😢</h1>
+      <p id="answer-display">정답은 X였습니다.</p>
+      <p>코팡 구입은 걸코와 함께</p>
+      <p><a href="https://www.youtube.com/@Gulko" target="_blank">https://www.youtube.com/@Gulko</a></p>
+      <p>사랑합니다. 고객님</p>
+      <button id="restart-btn">다시 시작</button>
+    </div>
+  </div>
+
+  <!-- 게임 화면 -->
+  <div id="game-container">
+    <div id="game-header">코켓배송 - 업앤다운 대작전</div>
+    <div id="main-content">
+      <div id="status">
+        <span>단계: <strong id="level">1</strong></span>
+        <span>범위: <strong id="range">1 ~ 100</strong></span>
+      </div>
+      <div id="arrow"></div>
+      <div class="input-group">
+        <input type="number" id="guess-input" placeholder="숫자를 입력하세요" />
+        <button id="submit-btn">제출</button>
+      </div>
+      <div id="timer-chance">남은 기회: <strong id="chances">10</strong> | 남은 시간: <strong id="timer">60</strong>초</div>
+    </div>
+    <div id="game-footer">
+      유튜브 ‘걸코_Gulko’ 저작권 콘텐츠입니다. <a href="https://www.youtube.com/@Gulko" target="_blank">>https://www.youtube.com/@Gulko</a><br>© 2025 코켓게임즈. All rights reserved.
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <audio id="bgm" src="1.mp3" loop></audio>
+  <audio id="correct-sound" src="2.mp3"></audio>
+  <audio id="wrong-sound" src="3.mp3"></audio>
+  <audio id="gameover-sound" src="4.mp3"></audio>
+  <script>
+    let level = 1, maxRange = 100, target, chances, timer, timerInterval;
+    const startScreen = document.getElementById('start-screen');
+    const endScreen = document.getElementById('end-screen');
+    const gameContainer = document.getElementById('game-container');
+    const levelEl = document.getElementById('level');
+    const rangeEl = document.getElementById('range');
+    const chancesEl = document.getElementById('chances');
+    const timerEl = document.getElementById('timer');
+    const arrowEl = document.getElementById('arrow');
+    const guessInput = document.getElementById('guess-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const startBtn = document.getElementById('start-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const answerDisplay = document.getElementById('answer-display');
+    const bgm = document.getElementById('bgm');
+    const correctSound = document.getElementById('correct-sound');
+    const wrongSound = document.getElementById('wrong-sound');
+    const gameoverSound = document.getElementById('gameover-sound');
+
+    function playEffect(audioEl) {
+      const clone = audioEl.cloneNode();
+      clone.play().catch(() => {});
+    }
+    function startBGM() {
+      bgm.play().catch(() => {});
+    }
+    function startRound() {
+      maxRange = 100 + (level - 1) * 10;
+      target = Math.floor(Math.random() * maxRange) + 1;
+      chances = 10; timer = 60;
+      updateDisplay(); arrowEl.textContent = '';
+      guessInput.value = '';
+      guessInput.disabled = false;
+      submitBtn.disabled = false;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (--timer <= 0) return endGame();
+        timerEl.textContent = timer;
+      }, 1000);
+    }
+    function updateDisplay() {
+      levelEl.textContent = level;
+      rangeEl.textContent = `1 ~ ${maxRange}`;
+      chancesEl.textContent = chances;
+      timerEl.textContent = timer;
+    }
+    function endGame() {
+      clearInterval(timerInterval);
+      guessInput.disabled = true;
+      submitBtn.disabled = true;
+      bgm.pause();
+      playEffect(gameoverSound);
+      answerDisplay.textContent = `정답은 ${target}였습니다.`;
+      endScreen.style.display = 'flex';
+    }
+    submitBtn.addEventListener('click', () => {
+      const guess = parseInt(guessInput.value, 10);
+      if (!guess) return;
+      if (guess === target) {
+        playEffect(correctSound);
+        level++;
+        startRound();
+      } else {
+        playEffect(wrongSound);
+        chances--;
+        arrowEl.textContent = guess > target ? '▼ 다운' : '▲ 업';
+        arrowEl.className = guess > target ? 'down' : 'up';
+        chances > 0 ? updateDisplay() : endGame();
+      }
+    });
+    guessInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') submitBtn.click();
+    });
+    startBtn.addEventListener('click', () => {
+      startScreen.style.display = 'none';
+      gameContainer.style.display = 'flex';
+      startRound();
+      startBGM();
+    });
+    restartBtn.addEventListener('click', () => {
+      endScreen.style.display = 'none';
+      level = 1;
+      startRound();
+      startBGM();
+    });
+    window.addEventListener('load', () => {
+      startBGM();
+    });
+  </script>
+</body>
+</html>
